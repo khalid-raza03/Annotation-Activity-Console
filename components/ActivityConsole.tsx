@@ -85,11 +85,11 @@ export function ActivityConsole({
   const lastItem = Math.min(currentPage * pageSize, pagination.total)
 
   return (
-    <div className="h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-white flex flex-col">
       {/* Header */}
-      <header className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 shadow-md flex-shrink-0">
-        <h1 className="text-3xl font-bold">Annotation Activity Console</h1>
-        <p className="text-blue-100 mt-1">Real-time task management and monitoring</p>
+      <header className="bg-linear-to-r  from-blue-500 to-blue-300  text-white p-6 shadow-md shrink-0">
+        <h1 className="text-xl md:text-3xl font-bold">Annotation Activity Console</h1>
+        <p className="text-blue-100 mt-1 md:text-base text-sm">Real-time task management and monitoring</p>
       </header>
 
       {/* Stale cache banner — visible until the live fetch completes */}
@@ -97,7 +97,7 @@ export function ActivityConsole({
         <div
           role="status"
           aria-live="polite"
-          className="bg-yellow-50 border-b border-yellow-200 px-6 py-2 text-sm text-yellow-800 flex items-center gap-2 flex-shrink-0"
+          className="bg-yellow-50 border-b border-yellow-200 px-6 py-2 text-sm text-yellow-800 flex items-center gap-2 shrink-0"
         >
           <span className="animate-spin inline-block text-yellow-500">⟳</span>
           Showing cached data — refreshing from server…
@@ -107,14 +107,15 @@ export function ActivityConsole({
       {/* Main content area */}
       <div className="flex-1 overflow-hidden flex min-h-0 md:flex-row flex-col">
         {/* Left sidebar: Filters and list */}
-        <div className="w-96 border-r border-gray-200 flex flex-col overflow-hidden flex-shrink-0">
+        <div className="md:w-96 w-full border-r border-gray-200 flex flex-col overflow-hidden shrink-0">
           {/* Filters */}
-          <div className="flex-shrink-0 p-4 border-b border-gray-200 bg-gray-50 overflow-y-auto max-h-96">
+          <div className="shrink-0 p-4 border-b border-gray-200 bg-gray-50 overflow-y-auto max-h-96">
             <TaskFilters />
           </div>
 
           {/* Task list */}
-          <div className="flex-1 overflow-auto">
+          <div className="flex-1 overflow-auto max-h-72 overflow-y-auto">
+            <h3 className='text-lg lg:text-xl  text-blue-500 font-bold text-center py-3 border-b border-blue-300'>TASK LIST</h3>
             {error && (
               <div className="p-4 bg-red-50 border-b border-red-200 text-red-800 text-sm">
                 Error: {error}
@@ -136,12 +137,13 @@ export function ActivityConsole({
 
         {/* Right panel: Task details and summary */}
         <div className="flex-1 overflow-auto bg-white min-w-0">
+          <h3 className='text-lg lg:text-2xl border-b border-blue-400  text-blue-500 font-bold text-center py-3'>Summary of Selected Task </h3>
           <TaskSummary apiBase={apiBase} />
         </div>
       </div>
 
       {/* Status bar */}
-      <footer className="bg-gray-100 border-t border-gray-200 px-6 py-3 text-sm text-gray-600 flex-shrink-0">
+      <footer className="bg-gray-100 border-t border-gray-200 px-6 py-3 text-sm text-gray-600 shrink-0">
         <div className="flex justify-between items-center">
           <div>
             {pagination.total > 0

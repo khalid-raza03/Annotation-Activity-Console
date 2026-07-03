@@ -60,7 +60,7 @@ export function TaskFilters() {
           onChange={(e) =>
             dispatch(setFilterType(e.target.value ? (e.target.value as SortField extends never ? never : Parameters<typeof setFilterType>[0]) : undefined))
           }
-          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
         >
           <option value="">All types</option>
           {availableTypes.map((type) => (
@@ -82,7 +82,7 @@ export function TaskFilters() {
           onChange={(e) =>
             dispatch(setFilterStatus(e.target.value ? (e.target.value as Parameters<typeof setFilterStatus>[0]) : undefined))
           }
-          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
         >
           <option value="">All statuses</option>
           {NORMALIZED_STATUSES.map((status) => (
@@ -102,7 +102,7 @@ export function TaskFilters() {
           id="sort-field"
           value={sortField}
           onChange={(e) => dispatch(setSortField(e.target.value as SortField))}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
         >
           <option value="updatedAt">Last updated</option>
           <option value="annotationCount">Annotation count</option>

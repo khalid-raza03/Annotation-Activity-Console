@@ -102,7 +102,7 @@ export function TaskSummary({ apiBase = 'http://localhost:4000' }: TaskSummaryPr
       <TaskDetailHeader task={selectedTask} />
 
       {/* Summary stream area */}
-      <div className="flex-1 overflow-auto p-4">
+      <div className="flex-1 overflow-auto p-4 bg-amber-100">
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-semibold text-gray-700 text-sm uppercase tracking-wide">
             AI Summary
@@ -219,7 +219,7 @@ function MarkdownContent({ content }: { content: string }) {
 
   return (
     <div
-      className="prose prose-sm max-w-none prose-code:bg-gray-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-pre:bg-gray-900 prose-pre:text-gray-100"
+      className="prose prose-sm max-w-none prose-code:bg-gray-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-pre:bg-gray-900 prose-pre:text-gray-400 text-gray-500"
       dangerouslySetInnerHTML={{ __html: safeHtml }}
     />
   )
