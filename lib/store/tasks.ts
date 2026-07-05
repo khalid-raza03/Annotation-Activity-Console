@@ -1,9 +1,3 @@
-/**
- * Redux Toolkit slice for task management.
- * Uses createEntityAdapter for normalized storage and efficient lookups.
- * Includes thunks for fetching tasks from the API.
- */
-
 import {
   createSlice,
   createEntityAdapter,
@@ -11,25 +5,31 @@ import {
   PayloadAction,
 } from "@reduxjs/toolkit";
 import { Task, TasksResponse, NormalizedStatus, RawTask } from "../types";
-import { normalizeTask, normalizeTasks } from "../normalize";
+import { normalizeTask, normalizeTasks, normalizeAssignee } from "../normalize";
 
-// Entity adapter for normalized storage
 const tasksAdapter = createEntityAdapter<Task>({
   selectId: (task) => task.id,
-  sortComparer: (a, b) => b.updatedAt - a.updatedAt, // newest first by default
+  sortComparer: (a, b) => b.updatedAt - a.updatedAt,
 });
 
-// Return type includes the server's pagination metadata so we can store it
-interface FetchTasksResult {
-  tasks: Task[];
-  total: number;
-  page: number;
+export type TasksState = ReturnType<typeof tasksAdapter.getInitialState> & {
+  loading: boolean;
+  error: string | null;
+  totalCount: number;
+  currentPage: number;
   pageSize: number;
-}
+};
 
-// Async thunk for fetching tasks with pagination
+const initialState: TasksState = tasksAdapter.getInitialState({
+  loading: false,
+  error: null,
+  totalCount: 0,
+  currentPage: 1,
+  pageSize: 20,
+});
+
 export const fetchTasks = createAsyncThunk<
-  FetchTasksResult,
+  { tasks: Task[]; total: number; page: number; pageSize: number },
   { page: number; pageSize: number; apiBase: string },
   { rejectValue: string }
 >("tasks/fetchTasks", async ({ page, pageSize, apiBase }, { rejectWithValue }) => {
@@ -39,9 +39,7 @@ export const fetchTasks = createAsyncThunk<
     url.searchParams.set("pageSize", pageSize.toString());
 
     const response = await fetch(url.toString());
-    if (!response.ok) {
-      return rejectWithValue(`HTTP ${response.status}`);
-    }
+    if (!response.ok) return rejectWithValue(`HTTP ${response.status}`);
 
     const data: TasksResponse = await response.json();
     return {
@@ -55,58 +53,28 @@ export const fetchTasks = createAsyncThunk<
   }
 });
 
-// Fetch a single task by ID
 export const fetchTaskById = createAsyncThunk<
   Task,
   { id: string; apiBase: string },
   { rejectValue: string }
->(
-  "tasks/fetchTaskById",
-  async ({ id, apiBase }, { rejectWithValue }) => {
-    try {
-      const response = await fetch(`${apiBase}/api/tasks/${id}`);
-      if (!response.ok) {
-        return rejectWithValue(`HTTP ${response.status}`);
-      }
-      const raw: RawTask = await response.json();
-      return normalizeTask(raw);
-    } catch (err) {
-      return rejectWithValue(
-        err instanceof Error ? err.message : "Unknown error"
-      );
-    }
+>("tasks/fetchTaskById", async ({ id, apiBase }, { rejectWithValue }) => {
+  try {
+    const response = await fetch(`${apiBase}/api/tasks/${id}`);
+    if (!response.ok) return rejectWithValue(`HTTP ${response.status}`);
+    const raw: RawTask = await response.json();
+    return normalizeTask(raw);
+  } catch (err) {
+    return rejectWithValue(err instanceof Error ? err.message : "Unknown error");
   }
-);
-
-export interface TasksState {
-  ids: string[];
-  entities: Record<string, Task>;
-  loading: boolean;
-  error: string | null;
-  totalCount: number;
-  currentPage: number;
-  pageSize: number;
-}
-
-const initialState = tasksAdapter.getInitialState({
-  loading: false,
-  error: null as string | null,
-  totalCount: 0,
-  currentPage: 1,
-  pageSize: 20,
 });
 
 export const tasksSlice = createSlice({
   name: "tasks",
   initialState,
   reducers: {
-    // Load cached tasks into state without overwriting fresher data.
-    // Used on mount before the live fetch completes.
     setCachedTasks: (state, action: PayloadAction<Task[]>) => {
       tasksAdapter.setAll(state, action.payload);
-      // Don't update totalCount here; it will be set correctly when the live fetch completes.
     },
-    // Update a task's status (for real-time events)
     updateTaskStatus: (
       state,
       action: PayloadAction<{ id: string; status: NormalizedStatus }>
@@ -117,34 +85,16 @@ export const tasksSlice = createSlice({
         task.updatedAt = Date.now();
       }
     },
-    // Update a task's assignee (for real-time events)
     updateTaskAssignee: (
       state,
       action: PayloadAction<{ id: string; assignee: unknown }>
     ) => {
       const task = state.entities[action.payload.id];
       if (task) {
-        // Normalize the assignee from the event
-        const assignee = action.payload.assignee;
-        if (
-          typeof assignee === "object" &&
-          assignee !== null &&
-          "id" in assignee &&
-          "name" in assignee &&
-          typeof (assignee as Record<string, unknown>).id === "string" &&
-          typeof (assignee as Record<string, unknown>).name === "string"
-        ) {
-          task.assignee = {
-            id: (assignee as Record<string, string>).id,
-            name: (assignee as Record<string, string>).name,
-          };
-        } else {
-          task.assignee = null;
-        }
+        task.assignee = normalizeAssignee(action.payload.assignee);
         task.updatedAt = Date.now();
       }
     },
-    // Increment annotation count (for real-time events)
     incrementAnnotationCount: (state, action: PayloadAction<{ id: string }>) => {
       const task = state.entities[action.payload.id];
       if (task) {
@@ -152,7 +102,6 @@ export const tasksSlice = createSlice({
         task.updatedAt = Date.now();
       }
     },
-    // Set pagination params
     setPagination: (
       state,
       action: PayloadAction<{ page: number; pageSize: number }>
@@ -169,9 +118,7 @@ export const tasksSlice = createSlice({
       })
       .addCase(fetchTasks.fulfilled, (state, action) => {
         state.loading = false;
-        // Replace all tasks with the fetched ones
         tasksAdapter.setAll(state, action.payload.tasks);
-        // Store the authoritative total and page from the server
         state.totalCount = action.payload.total;
         state.currentPage = action.payload.page;
         state.pageSize = action.payload.pageSize;
@@ -181,7 +128,6 @@ export const tasksSlice = createSlice({
         state.error = action.payload || "Failed to fetch tasks";
       })
       .addCase(fetchTaskById.fulfilled, (state, action) => {
-        // Upsert the task (add or update)
         tasksAdapter.upsertOne(state, action.payload);
       });
   },
@@ -197,7 +143,6 @@ export const {
 
 export default tasksSlice.reducer;
 
-// Exported selectors from the adapter
 export const tasksSelectors = tasksAdapter.getSelectors(
   (state: TasksState) => state
 );

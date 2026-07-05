@@ -17,7 +17,7 @@ export function TaskList() {
   const selectedId = useSelector(selectSelectedTaskId)
   const loading = useSelector(selectTasksLoading)
 
-  // Track which task IDs were recently live-updated so we can flash them
+
   const [recentlyUpdated, setRecentlyUpdated] = useState<Set<string>>(new Set())
   const prevUpdatedAt = useRef<Record<string, number>>({})
 
@@ -26,7 +26,7 @@ export function TaskList() {
 
     for (const task of tasks) {
       const prev = prevUpdatedAt.current[task.id]
-      // A task is "recently updated" if its updatedAt changed since last render
+
       if (prev !== undefined && prev !== task.updatedAt) {
         newlyUpdated.push(task.id)
       }
@@ -40,7 +40,7 @@ export function TaskList() {
         return next
       })
 
-      // Remove the flash class after 1.5 s
+
       const timer = setTimeout(() => {
         setRecentlyUpdated((prev) => {
           const next = new Set(prev)

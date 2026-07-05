@@ -18,7 +18,7 @@ import {
   setSortField,
   setSortDirection,
 } from '@/lib/store/ui'
-import { NORMALIZED_STATUSES } from '@/lib/types'
+import { NormalizedStatus } from '@/lib/types'
 import { SortField } from '@/lib/store/ui'
 
 export function TaskFilters() {
@@ -34,22 +34,20 @@ export function TaskFilters() {
     <div className="space-y-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
       <h3 className="font-semibold text-gray-900">Filters &amp; Sort the data</h3>
 
-      {/* Search */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Search
         </label>
         <input
-          id="search-tasks"
+          id="search-input"
           type="text"
-          placeholder="Search tasks..."
           value={searchQuery}
           onChange={(e) => dispatch(setSearchQuery(e.target.value))}
-          className="w-full px-3 py-2 border border-gray-300 text-black rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="Search task title..."
+          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-750 text-gray-800"
         />
       </div>
 
-      {/* Type Filter */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Type
@@ -85,7 +83,7 @@ export function TaskFilters() {
           className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
         >
           <option value="">All statuses</option>
-          {NORMALIZED_STATUSES.map((status) => (
+          {Object.values(NormalizedStatus).map((status: NormalizedStatus) => (
             <option key={status} value={status}>
               {status}
             </option>
@@ -93,7 +91,6 @@ export function TaskFilters() {
         </select>
       </div>
 
-      {/* Sort Field */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Sort by
@@ -109,7 +106,6 @@ export function TaskFilters() {
         </select>
       </div>
 
-      {/* Sort Direction */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Direction
@@ -140,7 +136,6 @@ export function TaskFilters() {
         </div>
       </div>
 
-      {/* Clear Filters */}
       <button
         id="clear-filters"
         onClick={() => dispatch(clearFilters())}

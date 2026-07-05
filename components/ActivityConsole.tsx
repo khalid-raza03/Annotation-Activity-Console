@@ -38,15 +38,12 @@ export function ActivityConsole({
   const currentPage = useSelector((state: RootState) => state.tasks.currentPage)
   const pageSize = useSelector((state: RootState) => state.tasks.pageSize)
 
-  // True while we are showing cached data and the live fetch has not yet completed
   const [isShowingCachedData, setIsShowingCachedData] = useState(false)
 
-  // Initialize persistence, hydrate from cache, then fetch fresh data
   useEffect(() => {
     const init = async () => {
       await initPersistence()
 
-      // Try to load cached task list and show it immediately
       const cached = await loadCachedTasks()
       if (cached && cached.tasks.length > 0) {
         dispatch(setCachedTasks(cached.tasks))
@@ -55,16 +52,11 @@ export function ActivityConsole({
           `[ActivityConsole] Loaded ${cached.tasks.length} tasks from cache (age: ${Math.round((Date.now() - cached.timestamp) / 1000)}s)`
         )
       }
-
-      // Always fetch fresh data in the background
       const result = await dispatch(
         fetchTasks({ page: 1, pageSize: 20, apiBase })
       )
-
-      // Once fresh data is in, we are no longer showing stale cached data
       setIsShowingCachedData(false)
 
-      // Persist the fresh task list so the next reload is fast
       if (fetchTasks.fulfilled.match(result)) {
         saveCachedTasks(
           result.payload.tasks,
@@ -78,7 +70,6 @@ export function ActivityConsole({
     init()
   }, [dispatch, apiBase])
 
-  // Subscribe to real-time WebSocket feed
   useTaskFeed({ enabled: true, wsBase })
 
   const firstItem = Math.min((currentPage - 1) * pageSize + 1, pagination.total)
@@ -92,7 +83,6 @@ export function ActivityConsole({
         <p className="text-blue-100 mt-1 md:text-base text-sm">Real-time task management and monitoring</p>
       </header>
 
-      {/* Stale cache banner — visible until the live fetch completes */}
       {isShowingCachedData && (
         <div
           role="status"
@@ -104,16 +94,12 @@ export function ActivityConsole({
         </div>
       )}
 
-      {/* Main content area */}
       <div className="flex-1 overflow-hidden flex min-h-0 md:flex-row flex-col">
-        {/* Left sidebar: Filters and list */}
         <div className="md:w-96 w-full border-r border-gray-200 flex flex-col overflow-hidden shrink-0">
-          {/* Filters */}
           <div className="shrink-0 p-4 border-b border-gray-200 bg-gray-50 overflow-y-auto max-h-96">
             <TaskFilters />
           </div>
 
-          {/* Task list */}
           <div className="flex-1 overflow-auto max-h-72 overflow-y-auto">
             <h3 className='text-lg lg:text-xl  text-blue-500 font-bold text-center py-3 border-b border-blue-300'>TASK LIST</h3>
             {error && (
@@ -131,18 +117,15 @@ export function ActivityConsole({
             )}
           </div>
 
-          {/* Pagination */}
           {pagination.total > 0 && <TaskPagination />}
         </div>
 
-        {/* Right panel: Task details and summary */}
         <div className="flex-1 overflow-auto bg-white min-w-0">
           <h3 className='text-lg lg:text-2xl border-b border-blue-400  text-blue-500 font-bold text-center py-3'>Summary of Selected Task </h3>
           <TaskSummary apiBase={apiBase} />
         </div>
       </div>
 
-      {/* Status bar */}
       <footer className="bg-gray-100 border-t border-gray-200 px-6 py-3 text-sm text-gray-600 shrink-0">
         <div className="flex justify-between items-center">
           <div>

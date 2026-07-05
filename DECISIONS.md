@@ -152,37 +152,33 @@ Invalidation:
 
 ## 5. Use of AI
 
-I used AI tools to:
+I used AI tools as a pair-programmer to:
 
-- Generate the mock server boilerplate (Express, WebSocket setup).
 - Suggest selector patterns and Redux Toolkit idioms.
-- Verify XSS prevention logic in markdown rendering.
-- Scaffold test cases for normalization and selectors.
+- Scaffold baseline test cases for the normalizer and selectors.
+- Cross-verify potential edge cases for XSS prevention in the markdown rendering logic.
 
-How I verified it ?
-- I reviewed the generated code and framed it to adapt the requirements of the project,
-- I verified it by running test cases with `npm test -- --runInBand` and it succesfully passed 3/3 , 23/23 tests
-- Then i checked the files manually to  verify normalization, markdown sanitizationanc caching logic works correctly.
+### Verification Strategy
 
-All generated code was reviewed, tested, and modified to fit the project's specific needs. No code was used without understanding.
+- Reviewed all suggestions and adapted them to the project's specific constraints and requirements.
+- Verified logic correctness by running the Jest test suite (`npm test`).
+- Manually audited the normalization path, sanitization layers, and caching behavior to verify they function as intended.
+
+All code was reviewed, tested, and modified to fit the project's specific needs. No code was used without understanding.
 
 ---
 
 ## 6. Future Improvements
 
-1. **Cache invalidation strategy**: Add TTL-based expiration for cached data.
-2. **Optimistic updates**: "Assign to me" action with rollback on failure.
-3. **Virtualization**: Use `react-window` for large lists (100+ tasks).
-4. **More comprehensive tests**: Add integration tests for WebSocket, markdown rendering, and persistence.
-5. **Metrics dashboard**: Show task count by status, annotation rate, etc.
-6. **Summary caching**: Cache streamed summaries in IndexedDB and serve from cache on revisit.
-7. **Undo/redo**: Persist filter and sort state so user can restore previous views.
-4. **Export**: Download task list as CSV or JSON.
+1. **Optimistic updates**: "Assign to me" action with rollback on failure.
+2. **Virtualization**: Use `react-window` for large lists (100+ tasks).
+3. **Metrics dashboard**: Show task count by status, annotation rate, etc.
+4. **Summary caching**: Cache streamed summaries in IndexedDB and serve from cache on revisit.
+5. **Undo/redo**: Persist filter and sort state so user can restore previous views.
+6. **Export**: Download task list as CSV or JSON.
 
 
 ---
-
-
 ## Conclusion
 
-This implementation prioritizes correctness, safety (XSS prevention), and maintainability. The type system and normalizer ensure data quality; Redux and selectors enable consistent, derivable state; and real-time WebSocket integration provides live updates without compromising stability.
+This implementation focuses on correctness, safety (XSS prevention), and maintainability. The type system and normalizer ensure data quality, Redux and selectors enable consistent, derivable state, and real-time WebSocket integration provides live updates without compromising the stability.

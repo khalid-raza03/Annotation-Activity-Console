@@ -31,12 +31,11 @@ export function TaskSummary({ apiBase = 'http://localhost:4000' }: TaskSummaryPr
   const abortRef = useRef<AbortController | null>(null)
 
   useEffect(() => {
-    // Abort any in-progress stream from the previous task
+
     if (abortRef.current) {
       abortRef.current.abort()
     }
 
-    // Reset state for the new task
     setStreamedContent('')
     setIsFromCache(false)
 
@@ -52,9 +51,8 @@ export function TaskSummary({ apiBase = 'http://localhost:4000' }: TaskSummaryPr
     dispatch(setSummaryLoading(true))
     dispatch(setSummaryError(null))
 
-    // Step 1: Try to show cached summary immediately for fast perceived load
     loadCachedSummary(taskId).then((cached) => {
-      // Guard: don't apply if task has changed or stream was aborted
+
       if (controller.signal.aborted) return
       if (cached) {
         setStreamedContent(cached.content)
@@ -62,13 +60,13 @@ export function TaskSummary({ apiBase = 'http://localhost:4000' }: TaskSummaryPr
       }
     })
 
-    // Step 2: Stream fresh content from the server (always, even if cached)
+
     fetchSummaryStream(
       taskId,
       apiBase,
       controller.signal,
       (chunk) => {
-        setIsFromCache(false) // Switch to live stream once data arrives
+        setIsFromCache(false) 
         setStreamedContent((prev) => prev + chunk)
       },
       (err) => {
@@ -77,7 +75,7 @@ export function TaskSummary({ apiBase = 'http://localhost:4000' }: TaskSummaryPr
       },
       (fullContent) => {
         dispatch(setSummaryLoading(false))
-        // Cache the completed summary for future revisits
+
         saveCachedSummary(taskId, fullContent)
       }
     )
@@ -85,7 +83,7 @@ export function TaskSummary({ apiBase = 'http://localhost:4000' }: TaskSummaryPr
     return () => {
       controller.abort()
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [selectedTask?.id, apiBase, dispatch])
 
   if (!selectedTask) {
@@ -98,10 +96,9 @@ export function TaskSummary({ apiBase = 'http://localhost:4000' }: TaskSummaryPr
 
   return (
     <div className="h-full flex flex-col">
-      {/* Task metadata header */}
+    
       <TaskDetailHeader task={selectedTask} />
 
-      {/* Summary stream area */}
       <div className="flex-1 overflow-auto p-4 bg-amber-100">
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-semibold text-gray-700 text-sm uppercase tracking-wide">
@@ -144,7 +141,6 @@ export function TaskSummary({ apiBase = 'http://localhost:4000' }: TaskSummaryPr
   )
 }
 
-/** Renders the normalized task fields in a structured detail card */
 function TaskDetailHeader({ task }: { task: Task }) {
   const statusColors: Record<string, string> = {
     in_progress: 'bg-blue-100 text-blue-800 border-blue-200',
@@ -238,12 +234,6 @@ function formatTimeAgo(timestamp: number): string {
   return 'just now'
 }
 
-/**
- * Fetch the summary stream from the SSE endpoint.
- * Calls onChunk for each markdown fragment as it arrives.
- * Calls onComplete with the full accumulated content when the stream ends.
- * AbortSignal cancels the fetch mid-stream when the user selects a different task.
- */
 async function fetchSummaryStream(
   taskId: string,
   apiBase: string,
@@ -278,9 +268,9 @@ async function fetchSummaryStream(
 
         buffer += decoder.decode(value, { stream: true })
 
-        // Process complete SSE frames — split on double newline boundaries
+
         const lines = buffer.split('\n')
-        buffer = lines.pop() || '' // Keep the potentially incomplete trailing line
+        buffer = lines.pop() || '' 
 
         for (const line of lines) {
           if (line.startsWith('data: ')) {
@@ -292,7 +282,7 @@ async function fetchSummaryStream(
                 onChunk(chunk)
               }
             } catch {
-              // Ignore malformed individual SSE frames
+
             }
           } else if (line.startsWith('event: done')) {
             reader.cancel()
@@ -306,7 +296,6 @@ async function fetchSummaryStream(
     onComplete(accumulated)
   } catch (err) {
     if (err instanceof Error && err.name === 'AbortError') {
-      // Stream cancelled by the user selecting a different task — not an error
       return
     }
     onError(err instanceof Error ? err.message : 'Unknown error')

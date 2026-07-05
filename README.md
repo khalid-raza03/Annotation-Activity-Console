@@ -102,20 +102,6 @@ NEXT_PUBLIC_WS_BASE=ws://localhost:4000
 
 ---
 
-
-## Contributing
-
-1. Read `DECISIONS.md` for architectural decisions
-2. Follow the type-first approach: define types before implementation
-3. Use selectors in components; don't access Redux state directly
-4. Add tests for new features
-5. Keep the normalizer updated if API schema changes
-
----
-
-
----
-
-## Contact
+## Read more
 
 For questions or issues, refer to [DECISIONS Page](DECISIONS.md) for detailed design rationale.

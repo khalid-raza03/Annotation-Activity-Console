@@ -3,8 +3,8 @@
  * Verifies that messy backend data is correctly normalized.
  */
 
-import { normalizeTask, normalizeTasks } from '@/lib/normalize'
-import { RawTask, Task } from '@/lib/types'
+import { normalizeTask, normalizeTasks } from '../lib/normalize'
+import { RawTask, Task } from '../lib/types'
 
 describe('normalizeTask', () => {
   it('normalizes a complete, clean task', () => {
